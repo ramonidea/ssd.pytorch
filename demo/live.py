@@ -7,7 +7,7 @@ from imutils.video import FPS, WebcamVideoStream
 import argparse
 
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detection')
-parser.add_argument('--weights', default='weights/ssd_300_VOC0712.pth',
+parser.add_argument('--weights', default='/home/nvidia/ssd.pytorch/weights/ssd300_mAP_77.43_v2.pth',
                     type=str, help='Trained state_dict file path')
 parser.add_argument('--cuda', default=False, type=bool,
                     help='Use cuda in live demo')
@@ -41,18 +41,27 @@ def cv2_demo(net, transform):
 
     # start video stream thread, allow buffer to fill
     print("[INFO] starting threaded video stream...")
-    stream = WebcamVideoStream(src=0).start()  # default camera
+    stream = WebcamVideoStream(src=1).start()  # default camera
     time.sleep(1.0)
     # start fps timer
     # loop over frames from the video file stream
+    count = 0
+    lasttime = time.time()
     while True:
         # grab next frame
         frame = stream.read()
+        count += 1
         key = cv2.waitKey(1) & 0xFF
 
         # update FPS counter
         fps.update()
         frame = predict(frame)
+        if time.time() - lasttime > 5:
+            print(count / 5.0)
+            count = 0
+            lasttime = time.time()
+
+
 
         # keybindings for display
         if key == ord('p'):  # pause
